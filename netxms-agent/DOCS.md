@@ -58,7 +58,8 @@ what was applied. Agent state is persisted in the add-on's `/data` volume.
 
 - **CPU / memory / uptime / network interfaces** — via host networking.
 - **Processes** (`Process.*`, `System.ProcessCount`) — via `host_pid` + the
-  `SYS_PTRACE` capability, both enabled by this add-on.
+  `SYS_PTRACE` capability. These require **Protection mode** to be turned off (see
+  below); everything else works with it on.
 
 ### Disk / filesystem metrics
 
@@ -133,6 +134,25 @@ Notes and caveats:
   keep the DCI polling interval reasonable (e.g. 5 min).
 - The Supervisor reports whole GB; `haos-disk` multiplies to bytes so NetXMS can
   apply byte formatting.
+
+## Protection mode
+
+Home Assistant's **Protection mode** (on the add-on's **Info** tab) is enabled by
+default. While it is on, the Supervisor ignores the most host-invasive add-on
+options — including `host_pid` — even though this add-on requests them.
+
+What that means here:
+
+| Feature | Works with Protection mode ON? |
+| --- | --- |
+| CPU / memory / uptime / network | Yes |
+| `HAOS.FileSystem.*` / `HAOS.Disk.*` host-disk metrics (Supervisor API) | Yes |
+| Processes (`Process.*`, `System.ProcessCount`) | **No** — needs `host_pid` |
+
+If you want host process metrics, turn **Protection mode off** for this add-on.
+Home Assistant will warn that you are granting elevated system access — expected,
+since process visibility requires the host PID namespace. If you don't need
+per-process monitoring, leave Protection mode on; nothing else is affected.
 
 ## Networking
 
