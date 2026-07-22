@@ -1,0 +1,34 @@
+---
+name: NetXMS Agent
+version: "1.0.0"
+slug: netxms_agent
+description: NetXMS monitoring agent — reports this host's metrics to your NetXMS server
+url: https://github.com/welbow/hassio-addons/tree/main/netxms-agent
+# The upstream image (ghcr.io/netxms/agent) is currently published for amd64 only.
+arch:
+  - amd64
+startup: application
+boot: auto
+# We base on the upstream NetXMS image (not a Home Assistant base image),
+# so disable the s6 init wrapper and run our own start script.
+init: false
+# Host networking: agent listens on tcp/4700 and sees the real host interfaces.
+host_network: true
+# Host PID + SYS_PTRACE: enables Process.* / System.ProcessCount metrics.
+host_pid: true
+# Access to the Supervisor API (http://supervisor) via SUPERVISOR_TOKEN.
+# Used by the optional HAOS.Disk.* host-disk metrics (see DOCS.md).
+hassio_api: true
+apparmor: false
+privileged:
+  - SYS_PTRACE
+options:
+  master_servers: "192.168.0.0/24"
+  hostname: ""
+  extra_config:
+    - "DebugLevel = 2"
+schema:
+  master_servers: str
+  hostname: str?
+  extra_config:
+    - str
